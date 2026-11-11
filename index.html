@@ -16,6 +16,10 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Leaflet CSS & JS (Чистая карта без блокировок и рекламы) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -51,7 +55,7 @@
         
         <!-- Шапка: Логотип и Кнопка YouTube -->
         <header class="flex justify-between items-start w-full max-w-7xl mx-auto">
-            <!-- Название компании: В 2 строки, шрифт Serif (как в оригинале) -->
+            <!-- Название компании: В 2 строки, шрифт Serif -->
             <div class="leading-none">
                 <a href="#" class="font-serif font-bold text-2xl md:text-4xl tracking-wider uppercase block drop-shadow-md hover:opacity-90 transition">
                     ASPEN<br>HERITAGE
@@ -68,7 +72,7 @@
 
         <!-- Центральный контент -->
         <main class="w-full max-w-7xl mx-auto my-auto py-12">
-            <!-- Заголовок: Простой шрифт без засечек (Montserrat), тонкий/нормальный -->
+            <!-- Заголовок: Простой шрифт без засечек (Montserrat) -->
             <h1 class="font-sans font-light text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight max-w-4xl tracking-tight drop-shadow-lg mb-8">
                 Фермерское хозяйство и питомник собак
             </h1>
@@ -85,14 +89,14 @@
 
         <!-- Нижний блок: Телефон и Telegram -->
         <footer class="w-full max-w-7xl mx-auto flex flex-wrap items-center gap-4 pt-6">
-            <!-- Кнопка телефона: Позвонить + номер -->
+            <!-- Кнопка телефона -->
             <a href="tel:+375296666621" class="bg-white/90 hover:bg-white text-brandDark px-5 py-2.5 rounded-2xl flex flex-col justify-center transition shadow-md hover:scale-105">
                 <span class="text-[10px] uppercase tracking-wider text-gray-500 font-medium">Позвонить</span>
                 <span class="font-semibold text-sm md:text-base">+375 29 666 66 21</span>
             </a>
 
-            <!-- Кнопка Telegram (Голубая) -->
-            <a href="https://t.me/" target="_blank" rel="noopener noreferrer" 
+            <!-- Кнопка Telegram (Голубая, ведет прямо на @aspenheritage) -->
+            <a href="https://t.me/aspenheritage" target="_blank" rel="noopener noreferrer" 
                class="bg-brandTelegram hover:bg-sky-600 text-white px-5 py-3 rounded-2xl flex items-center gap-2.5 transition shadow-md hover:scale-105">
                 <i class="fa-brands fa-telegram text-lg"></i>
                 <span class="font-medium text-xs md:text-sm">Написать в Telegram</span>
@@ -103,26 +107,17 @@
     <!-- ==================== БЛОК 2: КАРТА И КОНТАКТЫ ==================== -->
     <section class="w-full bg-brandCream py-12 md:py-16 flex flex-col items-center">
         
-        <!-- Заголовок секции: Шрифт без засечек (Montserrat), тонкий (font-light) -->
+        <!-- Заголовок секции: Тонкий шрифт без засечек (Montserrat) -->
         <div class="text-center mb-8 px-4">
             <h2 class="font-sans font-light text-2xl md:text-4xl text-brandDark tracking-wide">
                 Как к нам проехать
             </h2>
         </div>
 
-        <!-- Полноширинная карта с точно установленной гео-точкой -->
-        <div class="w-full h-[450px] md:h-[550px] relative shadow-inner bg-gray-200">
-            <iframe 
-                src="https://yandex.ru/map-widget/v1/?ll=28.300111%2C54.303303&z=15&pt=28.300111%2C54.303303%2Cpm2rdm~28.300111%2C54.303303" 
-                width="100%" 
-                height="100%" 
-                frameborder="0" 
-                allowfullscreen="true" 
-                style="position:relative; width: 100%; height: 100%; min-height: 450px; border: 0;">
-            </iframe>
-        </div>
+        <!-- Контейнер интерактивной карты -->
+        <div id="map" class="w-full h-[450px] md:h-[550px] bg-gray-200 shadow-inner z-0"></div>
 
-        <!-- Контакты под картой: Почта и лаконичные кнопки маршрутов -->
+        <!-- Контакты под картой -->
         <div class="w-full max-w-4xl px-4 mt-8 flex flex-col items-center text-center">
             
             <!-- Почта -->
@@ -131,7 +126,7 @@
                 mail@heritage.by
             </a>
 
-            <!-- Одинаковые стильные кнопки навигации -->
+            <!-- Одинаковые кнопки навигации -->
             <div class="flex flex-wrap justify-center items-center gap-3 md:gap-4 mb-10 w-full max-w-sm">
                 <a href="https://yandex.ru/maps?whatshere%5Bzoom%5D=18&whatshere%5Bpoint%5D=28.300111,54.303303&si=a0k00ax43cwfgry9wq2b63h124" 
                    target="_blank" rel="noopener noreferrer" 
@@ -157,5 +152,31 @@
         </div>
     </section>
 
+    <!-- Инициализация карты -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var lat = 54.303303;
+            var lng = 28.300111;
+
+            var map = L.map('map', {
+                scrollWheelZoom: false
+            }).setView([lat, lng], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            var customIcon = L.divIcon({
+                className: 'custom-pin',
+                html: `<div style="background-color:#e61e38; width:22px; height:22px; border-radius:50%; border:3px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>`,
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+
+            L.marker([lat, lng], { icon: customIcon }).addTo(map)
+                .bindPopup('<b>ASPEN HERITAGE</b><br>Фермерское хозяйство').openPopup();
+        });
+    </script>
 </body>
 </html>
